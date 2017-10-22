@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,6 +20,7 @@ import com.prioritization.service.PriorityServiceImpl;
 @Path("/priority")
 public class PriorityResource {
 
+	final static Logger logger = Logger.getLogger(EmailResource.class);
 	private static PriorityService priorityService = new PriorityServiceImpl();
 
 	@GET
@@ -30,6 +32,7 @@ public class PriorityResource {
 		try {
 			prioritiesJsonArray = priorityService.getAllPriorities();
 			if (prioritiesJsonArray != null && prioritiesJsonArray.length() > 0) {
+				logger.debug("This is logger Test");
 				return Response.status(200).entity(prioritiesJsonArray.toString()).build();
 			}
 		} catch (Exception exception) {

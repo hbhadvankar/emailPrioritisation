@@ -9,6 +9,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,7 +20,8 @@ import com.prioritization.service.PriorityServiceImpl;
 
 @Path("/emailService")
 public class EmailResource {
-
+	
+	final static Logger logger = Logger.getLogger(EmailResource.class);
 	private static EmailService emailService = new EmailServiceImpl();
 
 	@GET
@@ -30,6 +32,7 @@ public class EmailResource {
 		try {
 			emailJson = emailService.getEmailById(emailId);
 			if (emailJson == null) {
+				logger.debug("Emails with Higher Priority are unread. read them first.");
 				return Response.status(200).entity("Emails with Higher Priority are unread. read them first.").build();
 			} else {
 				return Response.status(200).entity(emailJson.toString()).build();
