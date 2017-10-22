@@ -9,6 +9,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.prioritization.service.EmailService;
@@ -20,7 +21,7 @@ import com.prioritization.service.PriorityServiceImpl;
 public class EmailResource {
 
 	private static EmailService emailService = new EmailServiceImpl();
-	
+
 	@GET
 	@Path("/getMail/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -38,7 +39,7 @@ public class EmailResource {
 			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
 		}
 	}
-	
+
 	@POST
 	@Path("/applyPriorities")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -53,12 +54,12 @@ public class EmailResource {
 		}
 
 	}
-	
+
 	@POST
 	@Path("/markRead/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response markEmailAsRead(@PathParam("id") String emailId) {
-		//System.out.println("In this method POSt" + priority);
+		// System.out.println("In this method POSt" + priority);
 		try {
 			emailService.markEmailAsRead(emailId);
 			return Response.status(200).entity("email Marked as read !!!!!!").build();
@@ -68,7 +69,7 @@ public class EmailResource {
 		}
 
 	}
-	
+
 	@POST
 	@Path("/markReplied/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -82,7 +83,7 @@ public class EmailResource {
 		}
 
 	}
-	
+
 	@DELETE
 	@Path("/autoDelete")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -94,5 +95,22 @@ public class EmailResource {
 			// TODO Auto-generated catch block
 			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
 		}
+	}
+
+	@GET
+	@Path("/getAllReadPopupExpiredEmails")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getAllEmailsWithExpiredReadPopupTime() {
+		JSONArray emailJsonArray;
+		try {
+			emailJsonArray = emailService.getAllEmailsWithExpiredReadPopupTime();
+			if (emailJsonArray != null && emailJsonArray.length() > 0) {
+				return Response.status(200).entity(emailJsonArray.toString()).build();
+			}
+		} catch (Exception exception) {
+			// TODO Auto-generated catch block
+			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+		}
+		return Response.status(204).entity("Currently There are no Emails to display..").build();
 	}
 }

@@ -28,10 +28,8 @@ public class PriorityDaoImpl implements PriorityDao{
 			// create a document to store key and value
 			DBObject dbObject = (DBObject) JSON.parse(priority);
 			ObjectId id = (ObjectId) dbObject.get("_id");
-			/*p.setId(id.toString());*/
 			BasicDBObject queryDbObject = new BasicDBObject().append("_id", id);
 			
-			// save it into collection named "dineshonjavaCollection"
 			collection.update(queryDbObject,dbObject);
 			System.out.println("Priority updated!!!!!");
 		} catch (UnknownHostException unknownHostException) {
@@ -55,10 +53,8 @@ public class PriorityDaoImpl implements PriorityDao{
 		try {
 			DBCollection collection = getPriorityCollection();
 			 
-			// create a document to store key and value
 			DBObject dbObject = (DBObject) JSON.parse(priority);
-			
-			// save it into collection named "dineshonjavaCollection"
+
 			collection.insert(dbObject);
 			System.out.println("New Priority Inserted!!!!!");
 		} catch (UnknownHostException unknownHostException) {
@@ -85,10 +81,6 @@ public class PriorityDaoImpl implements PriorityDao{
 				try {
 					DBCollection collection = getPriorityCollection();
 					 
-					// create a document to store key and value
-					//DBObject doc = toDBObject(priority);
-					
-					// save it into collection named "dineshonjavaCollection"
 					DBCursor dbCursor = collection.find();
 					
 					while(dbCursor.hasNext()){
@@ -120,10 +112,6 @@ public class PriorityDaoImpl implements PriorityDao{
 		try {
 			DBCollection collection = getPriorityCollection();
 			 
-			// create a document to store key and value
-			//DBObject doc = toDBObject(priority);
-			
-			// save it into collection named "dineshonjavaCollection"
 			BasicDBObject searchQuery = new BasicDBObject();
 			searchQuery.put("_id", new ObjectId(priorityId));
 			DBCursor cursor = collection.find(searchQuery);
@@ -155,10 +143,6 @@ public class PriorityDaoImpl implements PriorityDao{
 		try {
 			DBCollection collection = getPriorityCollection();
 			 
-			// create a document to store key and value
-			//DBObject doc = toDBObject(priority);
-			
-			// save it into collection named "dineshonjavaCollection"
 			BasicDBObject searchQuery = new BasicDBObject();
 			searchQuery.put("_id", new ObjectId(priorityId));
 			collection.remove(searchQuery);
@@ -185,11 +169,6 @@ public class PriorityDaoImpl implements PriorityDao{
 		JSONArray jsonArray = new JSONArray();
 				try {
 					DBCollection collection = getPriorityCollection();
-					 
-					// create a document to store key and value
-					//DBObject doc = toDBObject(priority);
-					
-					// save it into collection named "dineshonjavaCollection"
 					DBCursor dbCursor = collection.find(new BasicDBObject("priorityLabel", priorityLabel));
 					DBObject dbObject = null;
 					while(dbCursor.hasNext()){
@@ -232,7 +211,6 @@ public class PriorityDaoImpl implements PriorityDao{
 		// if database doesn't exists, mongoDB will create it automatically
 		DB db = mongo.getDB("email_priotisation_db");
 		 
-		// Get collection from MongoDB, database named "dineshonjavaDB"
 		// if collection doesn't exists, mongoDB will create it automatically
 		DBCollection collection = db.getCollection("priorities");
 		return collection;
