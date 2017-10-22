@@ -14,7 +14,6 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
-import com.prioritization.dataObject.Priority;
 
 public class PriorityTest {
 
@@ -96,26 +95,5 @@ public class PriorityTest {
 		updatePriorityMethod("{\"condition\":{\"applyOrder\":1,\"parameter\":\"email\",\"parameterValue\":\"bhadvankar@gmail.com\"},\"priorityValue\":2,\"prioritylabel\":\"MyNewLabel_Harish_updated\",\"autoDelete\":false,\"_id\":{\"$oid\":\"59e9d0828d6a9de529877fd4\"},\"readPopupTime\":1600,\"mustReply\":true}");
 	}
 
-	
-	public static DBObject toDBObject(Priority p) {
-
-		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start()
-				.append("priorityLabel", p.getPrioritylabel()).append("priorityValue", p.getPriorityValue());
-		/*if (p.getId() != null)
-			builder = builder.append("_id", new ObjectId(p.getId()));*/
-		return builder.get();
-	}
-
-	// convert DBObject Object to Person
-	// take special note of converting ObjectId to String
-	public static Priority toPerson(DBObject doc) {
-		Priority p = new Priority();
-		p.setPrioritylabel((String) doc.get("priorityLabel"));
-		p.setPriorityValue((Integer) doc.get("priorityValue"));
-		/*ObjectId id = (ObjectId) doc.get("_id");
-		p.setId(id.toString());*/
-		return p;
-
-	}
 
 }

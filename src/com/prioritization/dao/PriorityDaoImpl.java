@@ -15,7 +15,6 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
-import com.prioritization.dataObject.Priority;
 
 public class PriorityDaoImpl implements PriorityDao{
 
@@ -215,25 +214,5 @@ public class PriorityDaoImpl implements PriorityDao{
 		DBCollection collection = db.getCollection("priorities");
 		return collection;
 	}
-	
-	public static DBObject toDBObject(Priority p) {
 
-		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start()
-				.append("priorityLabel", p.getPrioritylabel()).append("priorityValue", p.getPriorityValue());
-		/*if (p.getId() != null)
-			builder = builder.append("_id", new ObjectId(p.getId()));*/
-		return builder.get();
-	}
-
-	// convert DBObject Object to Person
-	// take special note of converting ObjectId to String
-	public static Priority toPerson(DBObject doc) {
-		Priority p = new Priority();
-		p.setPrioritylabel((String) doc.get("priorityLabel"));
-		p.setPriorityValue((Integer) doc.get("priorityValue"));
-		/*ObjectId id = (ObjectId) doc.get("_id");
-		p.setId(id.toString());*/
-		return p;
-
-	}
 }
