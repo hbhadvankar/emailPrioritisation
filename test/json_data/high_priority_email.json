@@ -1,0 +1,8 @@
+{
+    "from_emailId": "manager@company.com",
+    "to_emailId": "abcd@gmail.com",
+    "subject": "Urgent Work Please Reply",
+    "body": "Main mail body",
+    "read": false,
+    "replied": false
+   }

@@ -1,0 +1,15 @@
+{
+        "priorityLabel": "High",
+        "priorityValue": 2,
+        "condition": {
+            "applyOrder": 1,
+            "parameter": "email",
+            "value": "manager@company.com"
+        },
+        "popUp": {
+            "popUpTime": 500,
+            "read": true,
+            "mustReply": true
+        },
+        "autoDelete": false
+    }

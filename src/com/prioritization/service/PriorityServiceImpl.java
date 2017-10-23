@@ -1,12 +1,13 @@
 package com.prioritization.service;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.prioritization.dao.PriorityDaoImpl;
 
 public class PriorityServiceImpl implements PriorityService {
-
+	final static Logger logger = Logger.getLogger(PriorityServiceImpl.class);
 	private PriorityDaoImpl priorityDao;
 
 	public PriorityServiceImpl() {
@@ -14,17 +15,12 @@ public class PriorityServiceImpl implements PriorityService {
 	}
 
 	@Override
-	public void updatePriority(String priority) throws Exception{
+	public void updatePriority(String priority) throws Exception {
 		try {
+			logger.debug("in updatePriority.");
 			priorityDao.updatePriority(priority);
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing the message in DAO Implementation.
-			 * We are only throwing the exception back to the web service method. 
-			 * This is done to send a proper response code in case of any error occured
-			 */
-			//System.out.println("Exception = "+exception.getMessage());
 			throw exception;
 		}
 	}
@@ -38,15 +34,10 @@ public class PriorityServiceImpl implements PriorityService {
 	public void createPriority(String priority) throws Exception {
 		// TODO Auto-generated method stub
 		try {
+			logger.debug("in createPriority service method.");
 			priorityDao.createPriority(priority);
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing the message in DAO Implementation.
-			 * We are only throwing the exception back to the web service method. 
-			 * This is done to send a proper response code in case of any error occured
-			 */
-			//System.out.println("Exception = "+exception.getMessage());
 			throw exception;
 		}
 	}
@@ -60,15 +51,10 @@ public class PriorityServiceImpl implements PriorityService {
 	public JSONArray getAllPriorities() throws Exception {
 		JSONArray jsonArray = null;
 		try {
+			logger.debug("in getAllPriorities service method.");
 			jsonArray = priorityDao.getAllPriorities();
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing the message in DAO Implementation.
-			 * We are only throwing the exception back to the web service method. 
-			 * This is done to send a proper response code in case of any error occured
-			 */
-			//System.out.println("Exception = "+exception.getMessage());
 			throw exception;
 		}
 		return jsonArray;
@@ -85,15 +71,10 @@ public class PriorityServiceImpl implements PriorityService {
 	public JSONObject getPriorityById(String priorityId) throws Exception {
 		JSONObject jsonObject = null;
 		try {
+			logger.debug("in getPriorityById service method.");
 			jsonObject = priorityDao.getPriorityById(priorityId);
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing the message in DAO Implementation.
-			 * We are only throwing the exception back to the web service method. 
-			 * This is done to send a proper response code in case of any error occured
-			 */
-			//System.out.println("Exception = "+exception.getMessage());
 			throw exception;
 		}
 		return jsonObject;
@@ -109,15 +90,10 @@ public class PriorityServiceImpl implements PriorityService {
 	@Override
 	public void deletePriorityById(String priorityId) throws Exception {
 		try {
+			logger.debug("in deletePriorityById service method.");
 			priorityDao.deletePriorityById(priorityId);
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing the message in DAO Implementation.
-			 * We are only throwing the exception back to the web service method. 
-			 * This is done to send a proper response code in case of any error occured
-			 */
-			//System.out.println("Exception = "+exception.getMessage());
 			throw exception;
 		}
 	}

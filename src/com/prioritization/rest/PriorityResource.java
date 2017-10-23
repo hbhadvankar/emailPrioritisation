@@ -14,47 +14,59 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.mongodb.util.JSONParseException;
 import com.prioritization.service.PriorityService;
 import com.prioritization.service.PriorityServiceImpl;
 
 @Path("/priority")
 public class PriorityResource {
 
-	final static Logger logger = Logger.getLogger(EmailResource.class);
+	final static Logger logger = Logger.getLogger(PriorityResource.class);
 	private static PriorityService priorityService = new PriorityServiceImpl();
 
 	@GET
 	@Path("/getAllPriorities")
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllPriorities() {
 
 		JSONArray prioritiesJsonArray;
 		try {
+			logger.debug("in getAllPriorities.");
 			prioritiesJsonArray = priorityService.getAllPriorities();
 			if (prioritiesJsonArray != null && prioritiesJsonArray.length() > 0) {
-				logger.debug("This is logger Test");
-				return Response.status(200).entity(prioritiesJsonArray.toString()).build();
+				logger.debug("Total Prioritites Fetched = " + prioritiesJsonArray.length());
+				return Response.ok(prioritiesJsonArray.toString(), MediaType.APPLICATION_JSON).build();
 			}
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if (exception instanceof JSONParseException) {
+				return Response.status(Response.Status.OK).entity("invalid data " + exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
-		return Response.status(204).entity("Currently There are no priorities to display..").build();
+		return Response.status(Response.Status.OK).entity("Currently There are no priorities to display..").build();
 	}
 
 	@POST
 	@Path("/createPriority")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createNewPriority(String priority) {
-		System.out.println("In this method POSt" + priority);
 		try {
-			priorityService.createPriority(priority);
-			return Response.status(200).entity("priority created successfully !!!!!!").build();
+			logger.debug("in createNewPriority.");
+			if (priority == null || priority.trim().length() == 0) {
+				return Response.status(Response.Status.OK).entity("priority json cannot be blank").build();
+			} else {
+				priorityService.createPriority(priority);
+				return Response.status(Response.Status.OK).entity("priority created successfully !!!!!!").build();
+			}
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if (exception instanceof IllegalArgumentException) {
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException) {
+				return Response.status(Response.Status.OK).entity("Invalid Json " + exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
-
 	}
 
 	@GET
@@ -63,28 +75,48 @@ public class PriorityResource {
 	public Response getPriorityById(@PathParam("id") String priorityId) {
 		JSONObject priorityJson;
 		try {
-			priorityJson = priorityService.getPriorityById(priorityId);
-			if (priorityJson != null) {
-				return Response.status(200).entity(priorityJson.toString()).build();
+			logger.debug("in getPriorityById.");
+			if (priorityId == null || priorityId.trim().length() == 0) {
+				return Response.status(Response.Status.OK).entity(" priorityId cannot be blank").build();
+			} else {
+				priorityJson = priorityService.getPriorityById(priorityId);
+				if (priorityJson != null) {
+					return Response.ok(priorityJson.toString(), MediaType.APPLICATION_JSON).build();
+				}
 			}
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if (exception instanceof IllegalArgumentException) {
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException) {
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
-		return Response.status(204).entity("Prioritynot found..").build();
+		return Response.status(Response.Status.OK).entity("Priority not found..").build();
 	}
 
 	@POST
 	@Path("/updatePriority")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePriority(String priority) {
-		System.out.println("In this method POSt" + priority);
 		try {
-			priorityService.updatePriority(priority);
-			return Response.status(200).entity("priority updated successfully !!!!!!").build();
+			logger.debug("in updatePriority.");
+			if (priority == null || priority.trim().length() == 0) {
+				return Response.status(Response.Status.OK).entity("priority json cannot be blank").build();
+			} else {
+				priorityService.updatePriority(priority);
+				return Response.status(200).entity("priority updated successfully !!!!!!").build();
+			}
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if (exception instanceof IllegalArgumentException) {
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException) {
+				return Response.status(Response.Status.OK).entity("Invalid Json " + exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
 
 	}
@@ -94,46 +126,47 @@ public class PriorityResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deletePriorityById(@PathParam("id") String priorityId) {
 		try {
-			priorityService.deletePriorityById(priorityId);
-			return Response.status(200).entity("priority deleted successfully !!!!!!").build();
+			logger.debug("in deletePriorityById.");
+			if (priorityId == null || priorityId.trim().length() == 0) {
+				return Response.status(Response.Status.OK).entity("priority id cannot be blank").build();
+			} else {
+				priorityService.deletePriorityById(priorityId);
+				return Response.status(200).entity("priority deleted successfully !!!!!!").build();
+			}
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if (exception instanceof IllegalArgumentException) {
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException) {
+				return Response.status(Response.Status.OK).entity("Invalid Json " + exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
 	}
 
-	/**
-	 * Have Commented the method below just in case for reference.
-	 * 
-	 */
-	/*
-	 * @POST
-	 * 
-	 * @Path("/createPriority")
-	 * 
-	 * @Consumes(MediaType.APPLICATION_JSON) public Response
-	 * createNewPriority(String priority) {
-	 * System.out.println("In this method POSt"+priority);
-	 * priorityService.createPriority(priority);
-	 * System.out.println("PriorityLabel  == "+priority.getPrioritylabel());
-	 * System.out.println("PriorityValue  == "+priority.getPriorityValue());
-	 * System.out.println("ReadPopupTime  == "+priority.getReadPopupTime());
-	 * 
-	 * System.out.println("MustReply  == "+priority.getMustReply());
-	 * System.out.println("AutoDelete  == "+priority.getAutoDelete());
-	 * System.out.println("Condition->Parameter  == "+priority.getCondition().
-	 * getParameter());
-	 * System.out.println("Condition->ParameterValue  == "+priority.getCondition
-	 * ().getParameterValue());
-	 * System.out.println("Condition->ApplyOrder  == "+priority.getCondition().
-	 * getApplyOrder());
-	 * 
-	 * ///priority.setCondition(new Condition("Subject", "abcd@gmail.com", 1));
-	 * 
-	 * priority.setMustReply(Boolean.TRUE);
-	 * priority.setAutoDelete(Boolean.FALSE);
-	 * 
-	 * return Response.status(200).entity("We got your priority!!!!!!").build();
-	 * }
-	 */
+	public static Response getPriorityByIdMethod(String priorityId) {
+		JSONObject priorityJson;
+		try {
+			logger.debug("in getPriorityById.");
+			if (priorityId == null || priorityId.trim().length() == 0) {
+				return Response.status(Response.Status.OK).entity(" priorityId cannot be blank").build();
+			} else {
+				priorityJson = priorityService.getPriorityById(priorityId);
+				if (priorityJson != null) {
+					return Response.status(Response.Status.OK).entity(priorityJson.toString()).build();
+				}
+			}
+		} catch (Exception exception) {
+			if (exception instanceof IllegalArgumentException) {
+				Response response = Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+				return response;
+			}
+			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+		}
+		return Response.status(Response.Status.OK).entity("Priority not found..").build();
+	}
+
+	public static void main(String[] args) {
+		getPriorityByIdMethod("adafascasda");
+	}
 }

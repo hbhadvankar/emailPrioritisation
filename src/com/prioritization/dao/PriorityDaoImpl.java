@@ -2,12 +2,12 @@ package com.prioritization.dao;
 
 import java.net.UnknownHostException;
 
+import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -17,11 +17,12 @@ import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
 
 public class PriorityDaoImpl implements PriorityDao{
-
+	final static Logger logger = Logger.getLogger(PriorityDaoImpl.class);
 	@Override
 	public void updatePriority(String priority) throws Exception{
 		// TODO Auto-generated method stub
 		try {
+			logger.debug("in updatePriority Dao method.");
 			DBCollection collection = getPriorityCollection();
 			 
 			// create a document to store key and value
@@ -30,14 +31,15 @@ public class PriorityDaoImpl implements PriorityDao{
 			BasicDBObject queryDbObject = new BasicDBObject().append("_id", id);
 			
 			collection.update(queryDbObject,dbObject);
-			System.out.println("Priority updated!!!!!");
+			logger.debug("priority updated");
+
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = "+unknownHostException.getMessage());
+			logger.error("UnknownHostException in update priority", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = "+exception.getMessage());
+			logger.error("MongoException in update priority", exception);
 			throw exception;
 		}
 	}
@@ -50,19 +52,22 @@ public class PriorityDaoImpl implements PriorityDao{
 	public void createPriority(String priority) throws Exception{
 		// TODO Auto-generated method stub
 		try {
+			logger.debug("in createPriority Dao method.");
+
 			DBCollection collection = getPriorityCollection();
 			 
 			DBObject dbObject = (DBObject) JSON.parse(priority);
 
 			collection.insert(dbObject);
-			System.out.println("New Priority Inserted!!!!!");
+			logger.debug("priority inserted");
+
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = "+unknownHostException.getMessage());
+			logger.error("UnknownHostException in creating priority", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = "+exception.getMessage());
+			logger.error("MongoException in creating priority", exception);
 			throw exception;
 		}
 	}
@@ -78,6 +83,8 @@ public class PriorityDaoImpl implements PriorityDao{
 		// TODO Auto-generated method stub
 		JSONArray jsonArray = new JSONArray();
 				try {
+					logger.debug("In getAllPriorities Dao Method");
+
 					DBCollection collection = getPriorityCollection();
 					 
 					DBCursor dbCursor = collection.find();
@@ -89,11 +96,11 @@ public class PriorityDaoImpl implements PriorityDao{
 					}
 				} catch (UnknownHostException unknownHostException) {
 					// TODO Auto-generated catch block
-					System.out.println("Exception = "+unknownHostException.getMessage());
+					logger.error("UnknownHostException in get all priority", unknownHostException);
 					throw unknownHostException;
 				} catch (MongoException exception) {
 					// TODO Auto-generated catch block
-					System.out.println("Exception = "+exception.getMessage());
+					logger.error("MongoException in get all priority", exception);
 					throw exception;
 				}
 				return jsonArray;
@@ -109,6 +116,8 @@ public class PriorityDaoImpl implements PriorityDao{
 	public JSONObject getPriorityById(String priorityId) throws Exception{
 		JSONObject jsonObject = null;
 		try {
+			logger.debug("In getPriorityById Dao Method");
+
 			DBCollection collection = getPriorityCollection();
 			 
 			BasicDBObject searchQuery = new BasicDBObject();
@@ -121,11 +130,15 @@ public class PriorityDaoImpl implements PriorityDao{
 			}
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = "+unknownHostException.getMessage());
+			logger.error("UnknownHostException in get priority by id", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = "+exception.getMessage());
+			logger.error("MongoException in get priority by id", exception);
+			throw exception;
+		}catch (Exception exception) {
+			// TODO Auto-generated catch block
+			logger.error("MongoException in get priority by id", exception);
 			throw exception;
 		}
 		return jsonObject;
@@ -140,6 +153,8 @@ public class PriorityDaoImpl implements PriorityDao{
 	@Override
 	public void deletePriorityById(String priorityId) throws Exception{
 		try {
+			logger.debug("In deletePriorityById Dao Method");
+
 			DBCollection collection = getPriorityCollection();
 			 
 			BasicDBObject searchQuery = new BasicDBObject();
@@ -148,11 +163,11 @@ public class PriorityDaoImpl implements PriorityDao{
 			
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = "+unknownHostException.getMessage());
+			logger.error("UnknownHostException in delete priority by id", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = "+exception.getMessage());
+			logger.error("MongoException in delete priority by id", exception);
 			throw exception;
 		}
 	}
@@ -186,11 +201,11 @@ public class PriorityDaoImpl implements PriorityDao{
 					
 				} catch (UnknownHostException unknownHostException) {
 					// TODO Auto-generated catch block
-					System.out.println("Exception = "+unknownHostException.getMessage());
+					logger.error("UnknownHostException in getAllPrioritiesHigherThanCurrentPriority", unknownHostException);
 					throw unknownHostException;
 				} catch (MongoException exception) {
 					// TODO Auto-generated catch block
-					System.out.println("Exception = "+exception.getMessage());
+					logger.error("MongoException in getAllPrioritiesHigherThanCurrentPriority", exception);
 					throw exception;
 				}
 				return jsonArray;
@@ -208,11 +223,12 @@ public class PriorityDaoImpl implements PriorityDao{
 		//Mongo mongo = new Mongo("localhostqwse", 27017221);
 		// get database from MongoDB,
 		// if database doesn't exists, mongoDB will create it automatically
-		DB db = mongo.getDB("email_priotisation_db");
+		DB db = mongo.getDB("email_prioritisation_db");
 		 
 		// if collection doesn't exists, mongoDB will create it automatically
 		DBCollection collection = db.getCollection("priorities");
 		return collection;
 	}
+	
 
 }

@@ -13,10 +13,9 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.mongodb.util.JSONParseException;
 import com.prioritization.service.EmailService;
 import com.prioritization.service.EmailServiceImpl;
-import com.prioritization.service.PriorityService;
-import com.prioritization.service.PriorityServiceImpl;
 
 @Path("/emailService")
 public class EmailResource {
@@ -30,30 +29,50 @@ public class EmailResource {
 	public Response getEmail(@PathParam("id") String emailId) {
 		JSONObject emailJson;
 		try {
-			emailJson = emailService.getEmailById(emailId);
-			if (emailJson == null) {
-				logger.debug("Emails with Higher Priority are unread. read them first.");
-				return Response.status(200).entity("Emails with Higher Priority are unread. read them first.").build();
+			logger.debug("Resource method for getting an email.");
+			if (emailId == null || emailId.trim().length() == 0){
+				return Response.status(Response.Status.OK).entity("email db id cannot be blank").build();
 			} else {
-				return Response.status(200).entity(emailJson.toString()).build();
+			emailJson = emailService.getEmailById(emailId);
+			if (emailJson != null) {
+				
+				return Response.ok(emailJson.toString(), MediaType.APPLICATION_JSON).build();
+			}
 			}
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if(exception instanceof IllegalArgumentException){
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException){
+				return Response.status(Response.Status.OK).entity("Invalid Json "+exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
+		return Response.status(Response.Status.OK).entity("Emails with Higher Priority are unread. read them first.").build();
 	}
 
 	@POST
 	@Path("/applyPriorities")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response applyPrioritiesToEmail(String priority) {
-		System.out.println("In this method POSt" + priority);
+	public Response applyPrioritiesToEmail(String email) {
 		try {
-			emailService.applyPrioritiesToEmail(priority);
-			return Response.status(200).entity("priority applied to email successfully !!!!!!").build();
+			logger.debug("Resource method for applying priorities to an email.");
+			if(email == null || email.trim().length() ==0){
+				return Response.status(Response.Status.OK).entity("email json cannot be blank").build();
+			} else {
+				emailService.applyPrioritiesToEmail(email);
+				logger.debug("priority applied to email successfully !!!!!!");
+				return Response.status(Response.Status.OK).entity("priority applied to email successfully !!!!!!").build();
+			}
+			
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if(exception instanceof IllegalArgumentException){
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException){
+				return Response.status(Response.Status.OK).entity("Invalid Json "+exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
 
 	}
@@ -62,13 +81,23 @@ public class EmailResource {
 	@Path("/markRead/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response markEmailAsRead(@PathParam("id") String emailId) {
-		// System.out.println("In this method POSt" + priority);
 		try {
+			logger.debug("mark email as read for id - "+emailId);
+			if(emailId == null || emailId.trim().length() ==0){
+				return Response.status(Response.Status.OK).entity("email db id cannot be blank").build();
+			} else {
 			emailService.markEmailAsRead(emailId);
-			return Response.status(200).entity("email Marked as read !!!!!!").build();
+			logger.debug("email successfully marked as read!!!!!!");
+			return Response.status(Response.Status.OK).entity("email Marked as read !!!!!!").build();
+			}
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if(exception instanceof IllegalArgumentException){
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException){
+				return Response.status(Response.Status.OK).entity("Invalid Json "+exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
 
 	}
@@ -78,11 +107,22 @@ public class EmailResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response markEmailAsReplied(@PathParam("id") String emailId) {
 		try {
+			logger.debug("mark email as replied for id - "+emailId);
+			if(emailId == null || emailId.trim().length() ==0){
+				return Response.status(Response.Status.OK).entity("email db id cannot be blank").build();
+			} else {
 			emailService.markEmailAsReplied(emailId);
+			logger.debug("email successfully marked as replied!!!!!!");
 			return Response.status(200).entity("email Marked as replied !!!!!!").build();
+			}
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if(exception instanceof IllegalArgumentException){
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException){
+				return Response.status(Response.Status.OK).entity("Invalid Json "+exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
 
 	}
@@ -92,11 +132,18 @@ public class EmailResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response autoDeleteEmails() {
 		try {
+			logger.debug("resource method for deteling emails");
 			emailService.deleteEmails();
-			return Response.status(200).entity("Email Deleted Message!!!!!!").build();
+			logger.debug("Emails Deleted successfully!!!!!!");
+			return Response.status(Response.Status.OK).entity("Email Deleted Message!!!!!!").build();
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if(exception instanceof IllegalArgumentException){
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException){
+				return Response.status(Response.Status.OK).entity("Invalid Json "+exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
 	}
 
@@ -106,14 +153,21 @@ public class EmailResource {
 	public Response getAllEmailsWithExpiredReadPopupTime() {
 		JSONArray emailJsonArray;
 		try {
+			logger.debug("resource method for fetching emails which has read popup time expired.");
 			emailJsonArray = emailService.getAllEmailsWithExpiredReadPopupTime();
 			if (emailJsonArray != null && emailJsonArray.length() > 0) {
-				return Response.status(200).entity(emailJsonArray.toString()).build();
+				logger.debug("returning all read popup time expired emails.");
+				return Response.ok(emailJsonArray.toString(), MediaType.APPLICATION_JSON).build();
 			}
 		} catch (Exception exception) {
-			// TODO Auto-generated catch block
-			return Response.status(503).entity("Service Unavailable = " + exception.getMessage()).build();
+			if(exception instanceof IllegalArgumentException){
+				return Response.status(Response.Status.OK).entity(exception.getMessage()).build();
+			} else if (exception instanceof JSONParseException){
+				return Response.status(Response.Status.OK).entity("Invalid Json "+exception.getMessage()).build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+			}
 		}
-		return Response.status(204).entity("Currently There are no Emails to display..").build();
+		return Response.status(Response.Status.OK).entity("Currently There are no Emails to display..").build();
 	}
 }

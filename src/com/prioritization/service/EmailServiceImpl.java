@@ -3,6 +3,7 @@ package com.prioritization.service;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,9 +12,10 @@ import com.mongodb.util.JSON;
 import com.prioritization.dao.EmailDao;
 import com.prioritization.dao.EmailDaoImpl;
 import com.prioritization.dao.PriorityDaoImpl;
+import com.prioritization.rest.EmailResource;
 
 public class EmailServiceImpl implements EmailService {
-
+	final static Logger logger = Logger.getLogger(EmailServiceImpl.class);
 	private EmailDao emailDao;
 	private PriorityDaoImpl priorityDao;
 
@@ -34,37 +36,44 @@ public class EmailServiceImpl implements EmailService {
 	public JSONObject getEmailById(String emailId) throws Exception {
 		JSONObject jsonObject = null;
 		try {
-			jsonObject = emailDao.getEmailById(emailId);
-			String priorityLabel = (String) jsonObject.get("priorityLabel");
+			if (emailId != null) {
+				logger.debug("fetching email by id = " + emailId);
+				jsonObject = emailDao.getEmailById(emailId);
+				String priorityLabel = (String) jsonObject.get("priorityLabel");
 
-			JSONArray higherPrioritiesJsonArray = priorityDao.getAllPrioritiesHigherThanCurrentPriority(priorityLabel);
-			if (higherPrioritiesJsonArray != null && higherPrioritiesJsonArray.length() > 0) {
-				for (Object object : higherPrioritiesJsonArray) {
-					JSONObject priorityJsonObject = (JSONObject) object;
-					String higherPriorityLabel = (String) priorityJsonObject.get("priorityLabel");
-					JSONArray unReadEmailsJsonArray = emailDao.findAllUnReadEmailsByPriorityLabel(higherPriorityLabel);
-					if (unReadEmailsJsonArray != null && unReadEmailsJsonArray.length() > 0) {
-						return null;
+				logger.debug("calling method to get all priorities by priority label = " + priorityLabel);
+				JSONArray higherPrioritiesJsonArray = new JSONArray();
+				if ("Low".equalsIgnoreCase(priorityLabel)) {
+					higherPrioritiesJsonArray = priorityDao.getAllPriorities();
+				} else {
+					higherPrioritiesJsonArray = priorityDao.getAllPrioritiesHigherThanCurrentPriority(priorityLabel);
+				}
+				if (higherPrioritiesJsonArray != null && higherPrioritiesJsonArray.length() > 0) {
+					for (Object object : higherPrioritiesJsonArray) {
+						JSONObject priorityJsonObject = (JSONObject) object;
+						String higherPriorityLabel = priorityJsonObject.has("priorityLabel")
+								? (String) priorityJsonObject.get("priorityLabel") : null;
+						if (higherPriorityLabel != null && higherPriorityLabel.trim().length() != 0) {
+							JSONArray unReadEmailsJsonArray = emailDao
+									.findAllUnReadEmailsByPriorityLabel(higherPriorityLabel);
+							if (unReadEmailsJsonArray != null && unReadEmailsJsonArray.length() > 0) {
+								return null;
+							}
+						}
 					}
 				}
 			}
-
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing
-			 * the message in DAO Implementation. We are only throwing the
-			 * exception back to the web service method. This is done to send a
-			 * proper response code in case of any error occured
-			 */
-			// System.out.println("Exception = "+exception.getMessage());
+			logger.error("Exception Occured in getting email by id due to follwing reasons", exception);
 			throw exception;
 		}
 		return jsonObject;
 	}
 
 	/**
-	 * The method to insert a new email in database.
+	 * The method to insert a new email in database. and assign priorities.
+	 * 
 	 * 
 	 * @param priority
 	 *            The json which is represented in string format.
@@ -72,6 +81,8 @@ public class EmailServiceImpl implements EmailService {
 	@Override
 	public void applyPrioritiesToEmail(String email) throws Exception {
 		try {
+			logger.debug("In applyPrioritiesToEmail method = ");
+
 			JSONArray priorityJsonArray = priorityDao.getAllPriorities();
 			DBObject dbObject = (DBObject) JSON.parse(email);
 			applyLowPriorityToEmail(dbObject);
@@ -79,29 +90,39 @@ public class EmailServiceImpl implements EmailService {
 			if (priorityJsonArray != null && priorityJsonArray.length() > 0) {
 				for (Object object : priorityJsonArray) {
 					JSONObject jsonObject = (JSONObject) object;
-					JSONObject conditionJsonObject = (JSONObject) jsonObject.get("condition");
+					JSONObject conditionJsonObject = jsonObject.has("condition") ? 
+							(JSONObject) jsonObject.get("condition") : null;
 					if (conditionJsonObject != null) {
-						String conditionParameter = (String) conditionJsonObject.get("parameter");
-						String conditionParameterValue = (String) conditionJsonObject.get("value");
+						
+						String conditionParameter = conditionJsonObject.has("parameter") ? 
+								(String) conditionJsonObject.get("parameter") : null;
+								
+						String conditionParameterValue = conditionJsonObject.has("value") ?
+								(String) conditionJsonObject.get("value") : null;
 						int applyOrder = (int) conditionJsonObject.get("applyOrder");
 						String priorityLabel = (String) jsonObject.get("priorityLabel");
 
-						JSONObject popupJsonObject = (JSONObject) jsonObject.get("popUp");
+						JSONObject popupJsonObject = jsonObject.has("popUp") ? 
+								(JSONObject) jsonObject.get("popUp") : null;
 						Calendar calendar = Calendar.getInstance();
 						Date timeStamp = calendar.getTime();
 
-						boolean isAutoDelete = (boolean) jsonObject.get("autoDelete");
+						boolean isAutoDelete = jsonObject.has("autoDelete") ? 
+								(boolean) jsonObject.get("autoDelete") : false;
 						if ("email".equalsIgnoreCase(conditionParameter)) {
 							String fromEmailId = (String) dbObject.get("from_emailId");
 							if (fromEmailId != null && fromEmailId.equalsIgnoreCase(conditionParameterValue)
 									&& latestApplyOrderValue > applyOrder) {
 								latestApplyOrderValue = applyOrder;
 								dbObject.put("priorityLabel", priorityLabel);
-
-								int popupTimeInSec = (int) popupJsonObject.get("popUpTime");
-								calendar.add(Calendar.SECOND, popupTimeInSec);
-								timeStamp = calendar.getTime();
-								dbObject.put("read_popup_time", timeStamp);
+								
+								if(popupJsonObject != null){
+									int popupTimeInSec = (int) popupJsonObject.get("popUpTime");
+									calendar.add(Calendar.SECOND, popupTimeInSec);
+									timeStamp = calendar.getTime();
+									dbObject.put("read_popup_time", timeStamp);
+								}
+								
 								if (isAutoDelete) {
 									Calendar newCalendar = Calendar.getInstance();
 									newCalendar.add(Calendar.SECOND, 172800);
@@ -120,10 +141,12 @@ public class EmailServiceImpl implements EmailService {
 								latestApplyOrderValue = applyOrder;
 								dbObject.put("priorityLabel", priorityLabel);
 
-								int popupTimeInSec = (int) popupJsonObject.get("popUpTime");
-								calendar.add(Calendar.SECOND, popupTimeInSec);
-								timeStamp = calendar.getTime();
-								dbObject.put("read_popup_time", timeStamp);
+								if(popupJsonObject != null){
+									int popupTimeInSec = (int) popupJsonObject.get("popUpTime");
+									calendar.add(Calendar.SECOND, popupTimeInSec);
+									timeStamp = calendar.getTime();
+									dbObject.put("read_popup_time", timeStamp);
+								}
 								if (isAutoDelete) {
 									Calendar newCalendar = Calendar.getInstance();
 									newCalendar.add(Calendar.SECOND, 172800);
@@ -143,13 +166,7 @@ public class EmailServiceImpl implements EmailService {
 			emailDao.addNewEmail(dbObject);
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing
-			 * the message in DAO Implementation. We are only throwing the
-			 * exception back to the web service method. This is done to send a
-			 * proper response code in case of any error occured
-			 */
-			// System.out.println("Exception = "+exception.getMessage());
+			logger.error("Exception Occured in applying priorities due to follwing reasons",exception);
 			throw exception;
 		}
 	}
@@ -178,13 +195,7 @@ public class EmailServiceImpl implements EmailService {
 			emailDao.markEmailAsRead(emailId);
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing
-			 * the message in DAO Implementation. We are only throwing the
-			 * exception back to the web service method. This is done to send a
-			 * proper response code in case of any error occured
-			 */
-			// System.out.println("Exception = "+exception.getMessage());
+			logger.debug("Exception Occured in mark email as read due to follwing reasons",exception);
 			throw exception;
 		}
 	}
@@ -201,13 +212,7 @@ public class EmailServiceImpl implements EmailService {
 			emailDao.markEmailAsReplied(emailId);
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing
-			 * the message in DAO Implementation. We are only throwing the
-			 * exception back to the web service method. This is done to send a
-			 * proper response code in case of any error occured
-			 */
-			// System.out.println("Exception = "+exception.getMessage());
+			logger.error("Exception Occured in mark email as replied due to follwing reasons",exception);
 			throw exception;
 		}
 	}
@@ -230,13 +235,7 @@ public class EmailServiceImpl implements EmailService {
 			emailDao.deleteEmails();
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing
-			 * the message in DAO Implementation. We are only throwing the
-			 * exception back to the web service method. This is done to send a
-			 * proper response code in case of any error occured
-			 */
-			// System.out.println("Exception = "+exception.getMessage());
+			logger.error("Exception Occured in deleting due to follwing reasons",exception);
 			throw exception;
 		}
 	}
@@ -252,12 +251,8 @@ public class EmailServiceImpl implements EmailService {
 			jsonArray = emailDao.getAllEmailsWithExpiredReadPopupTime();
 		} catch (Exception exception) {
 			// TODO Auto-generated catch block
-			/*
-			 * Commenting exception.getMessage() since we are already printing the message in DAO Implementation.
-			 * We are only throwing the exception back to the web service method. 
-			 * This is done to send a proper response code in case of any error occured
-			 */
-			//System.out.println("Exception = "+exception.getMessage());
+			logger.error("Exception Occured in getting all expired read popu time expired email "
+					+ "due to follwing reasons",exception);
 			throw exception;
 		}
 		return jsonArray;

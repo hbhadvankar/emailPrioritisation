@@ -1,0 +1,15 @@
+{
+        "priorityLabel": "Medium",
+        "priorityValue": 3,
+        "condition": {
+            "applyOrder": 2,
+            "parameter": "subject",
+            "value": "Urgent"
+        },
+        "popUp": {
+            "popUpTime": 700,
+            "read": true,
+            "mustReply": true
+        },
+        "autoDelete": true
+    }

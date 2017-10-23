@@ -1,0 +1,8 @@
+{
+    "from_emailId": "ceo@company.com",
+    "to_emailId": "abcd@gmail.com",
+    "subject": "Need your attention",
+    "body": "Main mail body",
+    "read": false,
+    "replied": false
+   }

@@ -4,6 +4,7 @@ import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,9 +18,12 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
+import com.prioritization.rest.EmailResource;
 
 public class EmailDaoImpl implements EmailDao {
 
+	final static Logger logger = Logger.getLogger(EmailDaoImpl.class);
+	
 	/**
 	 * The method that returns a email json object based on id of email saved in
 	 * database.
@@ -33,23 +37,25 @@ public class EmailDaoImpl implements EmailDao {
 		// TODO Auto-generated method stub
 		JSONObject jsonObject = null;
 		try {
-			DBCollection collection = getEmailCollection();
+			if(emailId != null){
+				DBCollection collection = getEmailCollection();
 
-			BasicDBObject searchQuery = new BasicDBObject();
-			searchQuery.put("_id", new ObjectId(emailId));
-			DBCursor cursor = collection.find(searchQuery);
+				BasicDBObject searchQuery = new BasicDBObject();
+				searchQuery.put("_id", new ObjectId(emailId));
+				DBCursor cursor = collection.find(searchQuery);
 
-			while (cursor.hasNext()) {
-				DBObject dbObject = cursor.next();
-				jsonObject = new JSONObject(JSON.serialize(dbObject));
+				while (cursor.hasNext()) {
+					DBObject dbObject = cursor.next();
+					jsonObject = new JSONObject(JSON.serialize(dbObject));
+				}
 			}
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
+			logger.error("UnknownHostException in get email by id", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
+			logger.error("MongoException in get email by id", exception);
 			throw exception;
 		}
 		return jsonObject;
@@ -80,14 +86,13 @@ public class EmailDaoImpl implements EmailDao {
 				collection.update(queryDbObject, dbObject);
 			}
 
-			System.out.println("New email Inserted!!!!!");
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
+			logger.error("UnknownHostException in add new email", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
+			logger.error("MongoException in add new email", exception);
 			throw exception;
 		}
 	}
@@ -137,11 +142,11 @@ public class EmailDaoImpl implements EmailDao {
 			collection.update(searchQuery, newDocument);
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
+			logger.error("UnknownHostException in marking email as read ", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
+			logger.error("MongoException in marking email as read ", exception);
 			throw exception;
 		}
 	}
@@ -163,15 +168,15 @@ public class EmailDaoImpl implements EmailDao {
 			newDocument.append("$set", new BasicDBObject().append("replied", true));
 
 			collection.update(searchQuery, newDocument);
-			newDocument.append("$set", new BasicDBObject().append("read", true));
-			collection.update(searchQuery, newDocument);
+			markEmailAsRead(emailId);
+			
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
+			logger.error("UnknownHostException in marking email as replied ", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
+			logger.error("MongoException in marking email as replied ", exception);
 			throw exception;
 		}
 	}
@@ -200,11 +205,11 @@ public class EmailDaoImpl implements EmailDao {
 			}
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
+			logger.error("UnknownHostException in finding all unread emails by priority label ", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
+			logger.error("MongoException in finding all unread emails by priority label ", exception);
 			throw exception;
 		}
 		return jsonArray;
@@ -244,11 +249,11 @@ public class EmailDaoImpl implements EmailDao {
 
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
+			logger.error("UnknownHostException in deleting emails ", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
+			logger.error("MongoException in deleting emails ", exception);
 			throw exception;
 		}
 	}
@@ -282,11 +287,11 @@ public class EmailDaoImpl implements EmailDao {
 
 		} catch (UnknownHostException unknownHostException) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
+			logger.error("UnknownHostException in unread emails ", unknownHostException);
 			throw unknownHostException;
 		} catch (MongoException exception) {
 			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
+			logger.error("MongoException in unread emails ", exception);
 			throw exception;
 		}
 		return jsonArray;
@@ -298,13 +303,13 @@ public class EmailDaoImpl implements EmailDao {
 	 * @return The priority Collection.
 	 * @throws UnknownHostException
 	 */
-	private static DBCollection getEmailCollection() throws UnknownHostException {
+	private DBCollection getEmailCollection() throws UnknownHostException {
 		// connect to mongoDB, IP and port number
 		Mongo mongo = new Mongo("localhost", 27017);
 		// Mongo mongo = new Mongo("localhostqwse", 27017221);
 		// get database from MongoDB,
 		// if database doesn't exists, mongoDB will create it automatically
-		DB db = mongo.getDB("email_priotisation_db");
+		DB db = mongo.getDB("email_prioritisation_db");
 
 		// if collection doesn't exists, mongoDB will create it automatically
 		DBCollection collection = db.getCollection("emails");
@@ -317,130 +322,17 @@ public class EmailDaoImpl implements EmailDao {
 	 * @return The priority Collection.
 	 * @throws UnknownHostException
 	 */
-	private static DBCollection getPriorityCollection() throws UnknownHostException {
+	private DBCollection getPriorityCollection() throws UnknownHostException {
 		// connect to mongoDB, IP and port number
 		Mongo mongo = new Mongo("localhost", 27017);
 		// Mongo mongo = new Mongo("localhostqwse", 27017221);
 		// get database from MongoDB,
 		// if database doesn't exists, mongoDB will create it automatically
-		DB db = mongo.getDB("email_priotisation_db");
+		DB db = mongo.getDB("email_prioritisation_db");
 
 		// if collection doesn't exists, mongoDB will create it automatically
 		DBCollection collection = db.getCollection("priorities");
 		return collection;
-	}
-
-	public static void markEmailAsReadMethod(String emailId) throws Exception {
-		// TODO Auto-generated method stub
-		try {
-			DBCollection collection = getEmailCollection();
-
-			DBCollection priorityCollection = getPriorityCollection();
-
-			JSONObject emailJson = getEmailByIdMethod(emailId);
-			String priorityLabel = (String) emailJson.get("priorityLabel");
-
-			DBCursor dbCursor = priorityCollection.find(new BasicDBObject("priorityLabel", priorityLabel));
-			DBObject dbObject = null;
-			while (dbCursor.hasNext()) {
-				dbObject = dbCursor.next();
-			}
-			int autoDeleteTimeInSeconds = 1;
-			if (dbObject != null) {
-				int priorityValue = (int) dbObject.get("priorityValue");
-				autoDeleteTimeInSeconds = 345600 / priorityValue;
-			}
-			// create a document to store key and value
-			// DBObject dbObject = (DBObject) JSON.parse(priority);
-			BasicDBObject searchQuery = new BasicDBObject().append("_id", new ObjectId(emailId));
-
-			Calendar newCalendar = Calendar.getInstance();
-			newCalendar.add(Calendar.SECOND, autoDeleteTimeInSeconds);
-
-			BasicDBObject newDocument = new BasicDBObject();
-			newDocument.append("$set", new BasicDBObject().append("read", false).append("$set",
-					new BasicDBObject().append("auto_delete_time", newCalendar.getTime())));
-
-			collection.update(searchQuery, newDocument);
-
-			// newDocument.append("$set",new
-			// BasicDBObject().append("auto_delete_time",
-			// newCalendar.getTime()));
-			// collection.update(searchQuery, newDocument);
-
-		} catch (UnknownHostException unknownHostException) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
-			throw unknownHostException;
-		} catch (MongoException exception) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
-			throw exception;
-		}
-	}
-
-	public static JSONArray getAllEmailsWithExpiredReadPopupTimeMethod() throws Exception {
-		JSONArray jsonArray = new JSONArray();
-		try {
-			Calendar newCalendar = Calendar.getInstance();
-			newCalendar.add(Calendar.SECOND, 400000);
-			DBCollection collection = getEmailCollection();
-
-			/*
-			 * DBCollection priorityCollection = getEmailCollection();
-			 * priorityCollection.find().sort(new BasicDBObject("priorityValue",
-			 * -1));
-			 */
-
-			DBCursor dbCursor = collection.find(new BasicDBObject().append("read", false).append("read_popup_time",
-					new BasicDBObject("$lte", newCalendar.getTime())));
-			while (dbCursor.hasNext()) {
-				DBObject dbObject = dbCursor.next();
-				JSONObject jsonObject = new JSONObject(JSON.serialize(dbObject));
-				jsonArray.put(jsonObject);
-			}
-
-		} catch (UnknownHostException unknownHostException) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
-			throw unknownHostException;
-		} catch (MongoException exception) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
-			throw exception;
-		}
-		return jsonArray;
-	}
-
-	public static void main(String[] args) throws Exception {
-		// markEmailAsReadMethod("59ec73768d6ad29939a4be2e");
-		getAllEmailsWithExpiredReadPopupTimeMethod();
-	}
-
-	public static JSONObject getEmailByIdMethod(String emailId) throws Exception {
-		// TODO Auto-generated method stub
-		JSONObject jsonObject = null;
-		try {
-			DBCollection collection = getEmailCollection();
-
-			BasicDBObject searchQuery = new BasicDBObject();
-			searchQuery.put("_id", new ObjectId(emailId));
-			DBCursor cursor = collection.find(searchQuery);
-
-			while (cursor.hasNext()) {
-				DBObject dbObject = cursor.next();
-				jsonObject = new JSONObject(JSON.serialize(dbObject));
-			}
-		} catch (UnknownHostException unknownHostException) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception = " + unknownHostException.getMessage());
-			throw unknownHostException;
-		} catch (MongoException exception) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception = " + exception.getMessage());
-			throw exception;
-		}
-		return jsonObject;
 	}
 
 }

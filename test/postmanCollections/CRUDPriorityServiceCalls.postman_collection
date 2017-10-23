@@ -1,0 +1,159 @@
+{
+	"id": "b8a9d134-2942-a0ae-dab4-308dc48ddd24",
+	"name": "CRUDPriorityServiceCalls",
+	"description": "",
+	"order": [
+		"0daf8f2f-d73b-a532-2558-fc7ebc0e1c7f",
+		"a39b9bf7-e8b3-e56b-39f4-98f4aa9d8151",
+		"3baebdda-f014-12f8-efae-b1c0aab834b6",
+		"3b2b670e-d8dc-8810-a989-4536dbbbabea",
+		"43699310-eebb-ef8a-21dc-1063fef66b4f"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1508531413740,
+	"owner": "1607936",
+	"public": false,
+	"requests": [
+		{
+			"id": "0daf8f2f-d73b-a532-2558-fc7ebc0e1c7f",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/emailPrioritization/rest/priority/createPriority",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1508737306090,
+			"name": "createPriority",
+			"description": "",
+			"collectionId": "b8a9d134-2942-a0ae-dab4-308dc48ddd24",
+			"responses": [],
+			"rawModeData": "{\n        \"priorityLabel\": \"Medium\",\n        \"priorityValue\": 3,\n        \"condition\": {\n            \"applyOrder\": 2,\n            \"parameter\": \"subject\",\n            \"value\": \"Urgent\"\n        },\n        \"popUp\": {\n            \"popUpTime\": 700,\n            \"read\": true,\n            \"mustReply\": true\n        },\n        \"autoDelete\": true\n    }"
+		},
+		{
+			"id": "3b2b670e-d8dc-8810-a989-4536dbbbabea",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/emailPrioritization/rest/priority/updatePriority",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1508582389621,
+			"name": "updatePriority",
+			"description": "",
+			"collectionId": "b8a9d134-2942-a0ae-dab4-308dc48ddd24",
+			"responses": [],
+			"rawModeData": "{\n        \"priorityLabel\": \"High\",\n        \"priorityValue\": 1,\n        \"condition\": {\n            \"applyOrder\": 3,\n            \"parameter\": \"email\",\n            \"value\": \"manager@company.com\"\n        },\n        \"popUp\": {\n            \"popUpTime\": 600,\n            \"read\": true,\n            \"mustReply\": true\n        },\n        \"autoDelete\": false,\n        \"_id\": {\n            \"$oid\": \"59eb15e88d6afc462d570136\"\n        }\n    }"
+		},
+		{
+			"id": "3baebdda-f014-12f8-efae-b1c0aab834b6",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/emailPrioritization/rest/priority/59ec5efd8d6a04c3820e4f45",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1508706190399,
+			"name": "getPriorityById",
+			"description": "",
+			"collectionId": "b8a9d134-2942-a0ae-dab4-308dc48ddd24",
+			"responses": [],
+			"rawModeData": "{\n    \"autoDelete\": false,\n    \"condition\": {\n        \"applyOrder\": 1,\n        \"parameter\": \"Subject\",\n        \"parameterValue\": \"Harishchandra@gmail.com\"\n    },\n    \"mustReply\": true,\n    \"prioritylabel\": \"MyNewLabel_Harish\",\n    \"priorityValue\": 2,\n    \"readPopupTime\": 1600\n}"
+		},
+		{
+			"id": "43699310-eebb-ef8a-21dc-1063fef66b4f",
+			"headers": "",
+			"headerData": [],
+			"url": "http://localhost:8080/emailPrioritization/rest/priority/59ea3de68d6a7dc75d8a046b",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "DELETE",
+			"collectionId": "b8a9d134-2942-a0ae-dab4-308dc48ddd24",
+			"data": null,
+			"dataMode": "params",
+			"name": "deleteById",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1508531535652,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		},
+		{
+			"id": "a39b9bf7-e8b3-e56b-39f4-98f4aa9d8151",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/emailPrioritization/rest/priority/getAllPriorities",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "b8a9d134-2942-a0ae-dab4-308dc48ddd24",
+			"data": null,
+			"dataMode": "params",
+			"name": "getAllPriorities",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1508531451998,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		}
+	]
+}

@@ -1,0 +1,15 @@
+{
+        "priorityLabel": "Highest",
+        "priorityValue": 1,
+        "condition": {
+            "applyOrder": 1,
+            "parameter": "email",
+            "value": "ceo@company.com"
+        },
+        "popUp": {
+            "popUpTime": 300,
+            "read": true,
+            "mustReply": true
+        },
+        "autoDelete": false
+    }

@@ -1,0 +1,8 @@
+{
+    "from_emailId": "finance@company.com",
+    "to_emailId": "abcd@gmail.com",
+    "subject": "Your Paycheck",
+    "body": "Main mail body",
+    "read": false,
+    "replied": false
+   }

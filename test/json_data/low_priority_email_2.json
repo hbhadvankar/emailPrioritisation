@@ -1,0 +1,8 @@
+{
+    "from_emailId": "it@company.com",
+    "to_emailId": "abcd@gmail.com",
+    "subject": "Installation Complete",
+    "body": "Main mail body",
+    "read": false,
+    "replied": false
+   }
