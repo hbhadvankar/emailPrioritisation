@@ -1,7 +1,7 @@
 # emailPrioritisation
-##This project consists of Web service API's which user will be using for managing priorities of their emails
+## This project consists of Web service API's which user will be using for managing priorities of their emails
 
-###Instructions of pre requisite softwares.
+### Instructions of pre requisite softwares.
 
 - You need to install Jdk 1.8. Please refer below link to download and install jdk 1.8
 [http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html]
@@ -20,7 +20,7 @@ prompt.
 - Download and install Postman from below link.
 [https://www.getpostman.com/docs/postman/launching_postman/installation_and_updates]
 
-###Build and Deployment Procedure
+### Build and Deployment Procedure
 
 - Refer below github url for email prioritisation project. You can either clone or download the source.
 [https://github.com/hbhadvankar/emailPrioritisation]
